@@ -15,7 +15,7 @@ import qualified Data.Text as T
 
 instance (HasResolution a) => PersistField (Fixed a) where
   toPersistValue a = PersistText $ T.pack $ show a
-  -- fromPersistValue (PersistDouble d) = Right $ fromRational $ toRational d
+  fromPersistValue (PersistDouble d) = Right $ fromRational $ toRational d
   fromPersistValue (PersistText d) = case reads dpt of
     [(a, "")] -> Right a
     _         -> Left $ T.pack $ "Could not read value " ++ dpt ++ " as fixed value"
@@ -23,7 +23,7 @@ instance (HasResolution a) => PersistField (Fixed a) where
 
   fromPersistValue a = Left $ T.append "Unexpected data value can not be converted to Fixed: " $ T.pack $ show a
 
-  sqlType a = SqlOther $ T.pack $ "DECIMAL(" ++ (show l) ++ "," ++ (show p) ++ ")"
+  sqlType a = SqlOther $ T.pack $ "NUMERIC(" ++ (show l) ++ "," ++ (show p) ++ ")"
     where
       p = round $ (log $ fromIntegral $ resolution a) / (log 10)
       l = p + 15                --  FIXME: this is maybe not very good
